@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// TODO: implements basic authorization
 Route::prefix('mails')->as('mails.')->group(function() {
     Route::get('/', [MailController::class, 'index'])->name('index');
     Route::post('/', [MailController::class, 'store'])->name('store');
