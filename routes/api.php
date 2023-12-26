@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::prefix('mails')->as('mails.')->group(function() {
+    Route::get('/', [MailController::class, 'index'])->name('index');
+    Route::post('/', [MailController::class, 'store'])->name('store');
+    Route::get('/{mail}', [MailController::class, 'show'])->name('show');
 });
