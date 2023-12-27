@@ -18,6 +18,8 @@ return [
         'passwords' => 'users',
     ],
 
+    'bearer_token' => env('BEARER_TOKEN', '123456789'),
+
     /*
     |--------------------------------------------------------------------------
     | Authentication Guards
