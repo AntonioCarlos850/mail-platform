@@ -1,38 +1,57 @@
 <?php
 
+use App\Models\Mail;
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Testing\TestResponse;
+use Tests\TestCase;
 
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext implements Context
+class FeatureContext extends TestCase implements Context
 {
+    public TestResponse $response;
 
     /**
-     * @Given a request of type POST with key called :arg1 with text :arg2
+     * Initializes context.
+     *
+     * Every scenario gets its own context instance.
+     * You can also pass arbitrary arguments to the
+     * context constructor through behat.yml.
      */
-    public function aRequestOfTypePostWithKeyCalledWithText($arg1, $arg2)
+    public function __construct()
     {
-        throw new PendingException();
+        parent::setUp();
     }
 
     /**
-     * @When try save on queue
+     * @When try create mail
      */
-    public function trySaveOnQueue()
+    public function tryCreateMail()
     {
-        throw new PendingException();
+        $this->response = $this->post(
+            route('mails.store'),
+            [
+                'content' => '<h1>Test</h1>',
+                'to' => 'contato@toninho.dev',
+                'subject' => 'Test',
+                'title' => 'Test in Behat'
+            ],
+            ['Authorization' => 'Bearer ' . config('auth.bearer_token')]
+        );
     }
 
     /**
-     * @Then insert that in queue
+     * @Then insert that mail
      */
-    public function insertThatInQueue()
+    public function insertThatMail()
     {
-        throw new PendingException();
+        $this->response->assertExactJson(['message' => 'Mail added in queue']);
     }
 
     /**
@@ -40,23 +59,22 @@ class FeatureContext implements Context
      */
     public function responseHttpCode($arg1)
     {
-        throw new PendingException();
+        $this->response->assertStatus(intval($arg1));
     }
 
     /**
-     * @Given a request with anything in body
+     * @When try to insert in queue with invalid data
      */
-    public function aRequestWithAnythingInBody()
+    public function tryToInsertInQueueWithInvalidData()
     {
-        throw new PendingException();
-    }
-
-    /**
-     * @When try to insert in queue
-     */
-    public function tryToInsertInQueue()
-    {
-        throw new PendingException();
+        $this->response = $this->post(
+            route('mails.store'),
+            [],
+            [
+                'Authorization' => 'Bearer ' . config('auth.bearer_token'),
+                'Accept' => 'application/json'
+            ]
+        );
     }
 
     /**
@@ -64,6 +82,6 @@ class FeatureContext implements Context
      */
     public function throwAErrorWithMessage($arg1)
     {
-        throw new PendingException();
+        $this->response->assertJson(['message' => $arg1]);
     }
 }
